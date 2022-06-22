@@ -109,7 +109,7 @@ const App = () => {
 
 
   const updateGroupName = async(groupId, form) => {
-    debugger
+    // debugger
     try {
       let response = await axios.patch(`${urlGroup}/${groupId}`, form, {
         headers: {
