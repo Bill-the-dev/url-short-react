@@ -8,19 +8,20 @@ const App = () => {
   const token = process.env.REACT_APP_BITLY_TOKEN
   
   const [currentGroup, setCurrentGroup] = useState({})
+  const [groupMetrics, setGroupMetrics] = useState({})
   const [currentLinks, setCurrentLinks] = useState([])
   const [currentLinkId, setCurrentLinkId] = useState('')
   const [linkMetrics, setLinkMetrics] = useState({})
   const [groupsList, setGroupsList] = useState([])
-  const [longUrl, setLongUrl] = useState('')
+  const [shortUrl, setShortUrl] = useState('')
   
   useEffect(() => {
-    // console.log(getShortLink())
     getGroupsList()
   }, [])
 
   useEffect(() => {
-    if (groupsList.length > 0) {
+    // set first group as default
+    if (groupsList.length > 0 && !currentGroup.values) {
       getGroup(groupsList[0].guid)
     }
   }, [groupsList])
@@ -28,8 +29,9 @@ const App = () => {
   useEffect(() => {
     if (currentGroup.guid) {
       getGroupLinks(currentGroup.guid)
+      getGroupMetrics(currentGroup.guid)
     }
-  }, [currentGroup])
+  }, [currentGroup, currentGroup.links])
 
   useEffect(() => {
     if (currentLinkId.length > 1) {
@@ -37,6 +39,12 @@ const App = () => {
     }
   }, [currentLinkId])
   
+  const handleSelectGroup = (e) => {
+    let parentLi = e.target.parentElement;
+    let groupId = parentLi.getAttribute('groupid');
+    getGroup(groupId);
+  }
+
 
   const getGroupsList = async() => {
     try {
@@ -77,12 +85,28 @@ const App = () => {
           'Content-Type': 'application/json'
         }
       });
-      console.log(response.data.links);
       setCurrentLinks(response.data.links);
     } catch (error) {
       alert(error);
     }
   }
+
+  const getGroupMetrics = async(groupId) => {
+    try {
+      let response = await axios.get(`${urlGroup}/${groupId}/countries`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log(response.data.metrics);
+      setGroupMetrics(response.data.metrics)
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+
 
   const updateGroupName = async(groupId, form) => {
     debugger
@@ -100,13 +124,13 @@ const App = () => {
     }
   }
 
-  const getShortLink = async() => {
+  const getShortLink = async(longUrl, title) => {
     try {
       let response = await axios.post(urlLink, {
-        "long_url": "https://www.linkedin.com/in/bill-camarco/",
+        "long_url": longUrl,
         "domain": "bit.ly",
-        "group_guid": "Bm6lbqGKXai",
-        "title": "LinkedIN Profile",
+        "group_guid": currentGroup.guid,
+        "title": title,
         "tags": [
           "bitly",
           "api"
@@ -119,10 +143,17 @@ const App = () => {
         }
       })
       console.log(response.data)
+      setShortUrl(response.data)
+      setLinkFormValue({
+        longUrl: '',
+        title: ''
+      })
     } catch(error) {
       alert(error)
     }
   };
+
+
 
   // --- LINK METRICS ---
   const handleSelectLink = (e) => {
@@ -150,47 +181,79 @@ const App = () => {
 
   // --- FORM METHODS ---
 
-  const [formValue, setFormValue] = useState({
+  const [groupFormValue, setGroupFormValue] = useState({
     name: currentGroup.name,
+  })
+  const [linkFormValue, setLinkFormValue] = useState({
+    longUrl: '',
+    title: ''
   })
 
   const handleSubmit = (type) => {
-    debugger
+    // debugger
     switch (type) {
       case 'updateGroup':
-        debugger
+        // debugger
         return (e) => {
           e.preventDefault();
-          debugger
-          updateGroupName(currentGroup.guid, formValue)
+          // debugger
+          updateGroupName(currentGroup.guid, groupFormValue)
         }
-    
+      case 'shortenLink':
+        return (e) => {
+          e.preventDefault();
+          getShortLink(linkFormValue.longUrl, linkFormValue.title)
+        }
       default:
-        
     }
   }
 
-  const handleChange = (type) => {
-    return (e) => setFormValue({
-      ...formValue,
+  const handleUrlChange = (type) => {
+    return (e) => setLinkFormValue({
+      ...linkFormValue,
       [type]: e.currentTarget.value
     })
+  }
 
+  const handleGroupChange = (type) => {
+    return (e) => setGroupFormValue({
+      ...groupFormValue,
+      [type]: e.currentTarget.value
+    })
   }
 
   return (
     
     <main className="App"> 
+      {/* Shorten Link */}
+      <h4>Create a Short Link</h4>
+      <form onSubmit={handleSubmit('shortenLink')}>
+        <label>URL to shorten:
+          <input type="text" defaultValue={linkFormValue.longUrl} placeholder='Enter URL' id="group-name-input" onChange={handleUrlChange('longUrl')} />
+        </label>
+        <br />
+        <label>Title:
+          <input type="text" defaultValue={linkFormValue.title} placeholder='Enter URL Title' id="group-name-input" onChange={handleUrlChange('title')} />
+        </label>
+        <br />
+        
+        <button type="submit">Get Short Link</button>
+      </form>
+
+
       {/* Group List */}
       <h4>{`Groups (${groupsList.length}):`}</h4>
       <ol> 
         {(groupsList.length === 0)
           ? <li>No Groups</li>
           : groupsList.map((group, idx) => (
-            <li key={idx}>
-              <span>Name: {group.name}</span>
-              <br />
-              <span>Active: {(group.is_active) ? 'true' : 'false'}</span>  
+            <li key={idx} groupid={group.guid}>
+              <span><b>Name:</b> {group.name}</span><br />
+              <span><b>Active:</b> {(group.is_active) ? 'true' : 'false'}</span><br />
+              {(group !== currentGroup)
+                ? <button disabled="disabled">Current Group</button>
+                : <button onClick={handleSelectGroup}>Group Details</button>
+              }  
             </li>
           ))
         }
@@ -200,24 +263,32 @@ const App = () => {
       {/* Current Group Detail */}
       <h4>Current Group: </h4>
       <ul className='ul c-group-ul'>
-        <li>Name: {currentGroup.name}</li>
-        <li>ID: {currentGroup.guid}</li>
-        <li>Links: 
+        <li><b>Name:</b> {currentGroup.name}</li>
+        <li><b>ID:</b> {currentGroup.guid}</li>
+        <li> <b>Metrics by Country (per 30 days):</b>
+          <ul className='ul c-group-metrics-ul'>
+            {(!groupMetrics.length)
+              ? <li>No Metrics</li>
+              : groupMetrics.map((country, idx) => (
+                <li key={idx}>
+                  <span><b>{country.value}:</b> {country.clicks} clicks</span><br />
+                </li>
+              ))
+            }
+          </ul>
+        </li>
+        <li><b>Links:</b> 
           <ul className='ul c-group-links-ul'>
             {(currentLinks.length === 0)
               ? <li>No Links</li>
               : currentLinks.map((link, idx) => (
                 <li key={idx} link={link.id}>
-                  <span>Title: {link.title}</span>
-                  <br />
-                  <span>Short Link: {<a href={link.link} target="_blank">{link.id}</a>}</span>
-                  <br />
-                  <span>Original Link: {<a href={link.long_url} target="_blank">{link.long_url}</a> }</span>
-                  <br />
-                  <span>Created At: {new Date(link.created_at).toLocaleString()}</span>
-                  <br />
+                  <span><b>Title:</b> {link.title}</span><br />
+                  <span>Short Link: {<a href={link.link} target="_blank">{link.id}</a>}</span><br />
+                  <span>Original Link: {<a href={link.long_url} target="_blank">{link.long_url}</a> }</span><br />
+                  <span>Created At: {new Date(link.created_at).toLocaleString()}</span><br />
                   <button onClick={handleSelectLink}>Get Link Metrics</button>
-                  <br /><br />
+                  <br />
                 </li>
               ))
             }
@@ -233,19 +304,16 @@ const App = () => {
             <span>Link: {currentLinkId}</span>
             <br />
             <span>Total Clicks: {linkMetrics.total_clicks} per {linkMetrics.units} {linkMetrics.unit}s</span>
-            <span></span>
-
+            <br />
+            <span><em>Upgrade account to access metrics by city, device type, </em></span>
           </div>
-
       }
-
-
 
       {/* Update Current Group */}
       <h4>Update Group Details:</h4>  
       <form onSubmit={handleSubmit('updateGroup')}>
         <label>Group Name: 
-          <input type="text" defaultValue='' placeholder='Enter new name' id="group-name-input" onChange={handleChange("name")}/>
+          <input type="text" defaultValue='' placeholder='Enter new name' id="group-name-input" onChange={handleGroupChange("name")}/>
         </label>
         <br />
         <button type="submit">Submit</button>
