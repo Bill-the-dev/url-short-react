@@ -154,6 +154,10 @@ const App = () => {
     }
   };
 
+  const copy = async() => {
+    await navigator.clipboard.writeText(shortUrl.link);
+    alert('Url copied');
+  }
 
 
   // --- LINK METRICS ---
@@ -230,11 +234,11 @@ const App = () => {
       <h4>Create a Short Link</h4>
       <form onSubmit={handleSubmit('shortenLink')}>
         <label>URL to shorten:
-          <input type="text" defaultValue={linkFormValue.longUrl} placeholder='Enter URL' id="group-name-input" onChange={handleUrlChange('longUrl')} />
+          <input type="text" defaultValue={linkFormValue.longUrl} placeholder='Enter URL' id="group-name-input" onChange={handleUrlChange('longUrl')} autoComplete='off' />
         </label>
         <br />
         <label>Title:
-          <input type="text" defaultValue={linkFormValue.title} placeholder='Enter URL Title' id="group-name-input" onChange={handleUrlChange('title')} />
+          <input type="text" defaultValue={linkFormValue.title} placeholder='Enter URL Title' id="group-name-input" onChange={handleUrlChange('title')} autoComplete='off' />
         </label>
         <br />
         
@@ -243,8 +247,11 @@ const App = () => {
 
       {(shortUrl.id)
         ? <div>
-            <p>Click to copy shortened link</p><br />
-            <button>{shortUrl.id}</button>
+            <p>Shortened URL: </p><br />
+            <h4>{shortUrl.id}</h4><br />
+            <button onClick={copy}>Copy to Clipboard</button>
+            
+          <a href={shortUrl.link} target="_blank" rel="noreferrer"><button >Open in New Tab</button></a>
           </div> 
         : null  
       }
@@ -293,8 +300,8 @@ const App = () => {
               : currentLinks.map((link, idx) => (
                 <li key={idx} link={link.id}>
                   <span><b>Title:</b> {link.title}</span><br />
-                  <span>Short Link: {<a href={link.link} target="_blank">{link.id}</a>}</span><br />
-                  <span>Original Link: {<a href={link.long_url} target="_blank">{link.long_url}</a> }</span><br />
+                  <span>Short Link: {<a href={link.link} target="_blank" rel="noreferrer">{link.id}</a>}</span><br />
+                  <span>Original Link: {<a href={link.long_url} target="_blank" rel="noreferrer">{link.long_url}</a> }</span><br />
                   <span>Created At: {new Date(link.created_at).toLocaleString()}</span><br />
                   <button onClick={handleSelectLink}>Get Link Metrics</button>
                   <br />
@@ -322,7 +329,7 @@ const App = () => {
       <h4>Update Group Details:</h4>  
       <form onSubmit={handleSubmit('updateGroup')}>
         <label>Group Name: 
-          <input type="text" defaultValue='' placeholder='Enter new name' id="group-name-input" onChange={handleGroupChange("name")}/>
+          <input type="text" defaultValue='' placeholder='Enter new name' id="group-name-input" onChange={handleGroupChange("name")} autoComplete='off'/>
         </label>
         <br />
         <button type="submit">Submit</button>
