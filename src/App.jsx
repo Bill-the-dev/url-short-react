@@ -2,6 +2,13 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// --- BOOTSTRAP 
+import Button from 'react-bootstrap/button';
+import Card from 'react-bootstrap/Card'
+import Form from 'react-bootstrap/Form'
+import Container from 'react-bootstrap/Container'
+// import Alert from 'react-bootstrap/Alert';
+
 const App = () => {
   const urlLink = 'https://api-ssl.bitly.com/v4/bitlinks';
   const urlGroup = 'https://api-ssl.bitly.com/v4/groups';
@@ -231,8 +238,66 @@ const App = () => {
 
   return (
     
-    <main className="App"> 
+    <Container className=""> 
       {/* Shorten Link */}
+      <Card className="mx-auto" style={{ width: '70vw' }}>
+        <Card.Header as="h4">Shorten a link</Card.Header>
+        <Card.Body>
+          <Form onSubmit={handleSubmit('shortenLink')}>
+            <Form.Group className='mb-3'>
+              <Form.Label>URL to shorten: </Form.Label>
+              <Form.Control type='text' placeholder='Enter a URL' defaultValue={linkFormValue.longUrl} onChange={handleUrlChange('longUrl')} autoComplete='off'></Form.Control>
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Title: </Form.Label>
+              <Form.Control type="text" defaultValue={linkFormValue.title} placeholder='Enter a title' id="group-name-input" onChange={handleUrlChange('title')} autoComplete='off'></Form.Control>
+            </Form.Group>
+            <Button type="submit">Get Short Link</Button>
+          </Form>
+
+        </Card.Body>
+      </Card>
+      <br />
+      {(shortUrl.id)
+        ? <Card className="mx-auto w-60" style={{ width: '60vw' }}>
+          <Card.Header as="h4">Shortened URL: </Card.Header>
+            <Card.Body className='text-center'>
+              <Card.Title as="h3">{shortUrl.id}</Card.Title>
+              <Button onClick={copy}>Copy to Clipboard</Button>
+              <Button href={shortUrl.link} target="_blank" rel="noreferrer">Open in New Tab</Button>
+            </Card.Body>
+          </Card>
+        : null
+      }
+      <br />
+
+      {/* Group List */}
+
+      <Card className="mx-auto w-60">
+
+      </Card>
+
+
+
+      <h4>{`Groups (${groupsList.length}):`}</h4>
+      <ol> 
+        {(groupsList.length === 0)
+          ? <li>No Groups</li>
+          : groupsList.map((group, idx) => (
+            <li key={idx} groupid={group.guid}>
+              <span><b>Name:</b> {group.name}</span><br />
+              <span><b>Active:</b> {(group.is_active) ? 'true' : 'false'}</span><br />
+              {(group !== currentGroup)
+                ? <Button disabled="disabled">Current Group</Button>
+                : <Button onClick={handleSelectGroup}>Group Details</Button>
+              }  
+            </li>
+          ))
+        }
+      </ol>
+      <br />
+
+      {/* <br /><br /><br />
       <h4>Create a Short Link</h4>
       <form onSubmit={handleSubmit('shortenLink')}>
         <label>URL to shorten:
@@ -245,38 +310,21 @@ const App = () => {
         <br />
         
         <button type="submit">Get Short Link</button>
+        
       </form>
 
       {(shortUrl.id)
         ? <div>
             <p>Shortened URL: </p><br />
             <h4>{shortUrl.id}</h4><br />
-            <button onClick={copy}>Copy to Clipboard</button>
+            <Button onClick={copy}>Copy to Clipboard</Button>
             
-          <a href={shortUrl.link} target="_blank" rel="noreferrer"><button >Open in New Tab</button></a>
+            <a href={shortUrl.link} target="_blank" rel="noreferrer"><Button >Open in New Tab</Button></a>
           </div> 
         : null  
-      }
+      } */}
 
 
-      {/* Group List */}
-      <h4>{`Groups (${groupsList.length}):`}</h4>
-      <ol> 
-        {(groupsList.length === 0)
-          ? <li>No Groups</li>
-          : groupsList.map((group, idx) => (
-            <li key={idx} groupid={group.guid}>
-              <span><b>Name:</b> {group.name}</span><br />
-              <span><b>Active:</b> {(group.is_active) ? 'true' : 'false'}</span><br />
-              {(group !== currentGroup)
-                ? <button disabled="disabled">Current Group</button>
-                : <button onClick={handleSelectGroup}>Group Details</button>
-              }  
-            </li>
-          ))
-        }
-      </ol>
-      <br />
       
       {/* Current Group Detail */}
       <h4>Current Group: </h4>
@@ -305,7 +353,7 @@ const App = () => {
                   <span>Short Link: {<a href={link.link} target="_blank" rel="noreferrer">{link.id}</a>}</span><br />
                   <span>Original Link: {<a href={link.long_url} target="_blank" rel="noreferrer">{link.long_url}</a> }</span><br />
                   <span>Created At: {new Date(link.created_at).toLocaleString()}</span><br />
-                  <button onClick={handleSelectLink}>Get Link Metrics</button>
+                  <Button onClick={handleSelectLink}>Get Link Metrics</Button>
                   <br />
                 </li>
               ))
@@ -334,9 +382,9 @@ const App = () => {
           <input type="text" defaultValue='' placeholder='Enter new name' id="group-name-input" onChange={handleGroupChange("name")} autoComplete='off'/>
         </label>
         <br />
-        <button type="submit">Submit</button>
+        <Button type="submit">Submit</Button>
       </form>
-    </main>
+    </Container>
   );
 };
 
