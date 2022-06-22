@@ -7,6 +7,8 @@ import Button from 'react-bootstrap/button';
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Container from 'react-bootstrap/Container'
+import ListGroup from 'react-bootstrap/ListGroup'
+import Badge from 'react-bootstrap/Badge'
 // import Alert from 'react-bootstrap/Alert';
 
 const App = () => {
@@ -259,8 +261,8 @@ const App = () => {
       </Card>
       <br />
       {(shortUrl.id)
-        ? <Card className="mx-auto w-60" style={{ width: '60vw' }}>
-          <Card.Header as="h4">Shortened URL: </Card.Header>
+        ? <Card className="mx-auto" style={{ width: '70vw' }}>
+            <Card.Header as="h4">Shortened URL: </Card.Header>
             <Card.Body className='text-center'>
               <Card.Title as="h3">{shortUrl.id}</Card.Title>
               <Button onClick={copy}>Copy to Clipboard</Button>
@@ -273,8 +275,31 @@ const App = () => {
 
       {/* Group List */}
 
-      <Card className="mx-auto w-60">
-
+      <Card className="mx-auto" style={{ width: '70vw' }}>
+        <Card.Header as="h4">{`Groups (${groupsList.length}):`}</Card.Header>
+        <Card.Body>
+          <ListGroup defaultActiveKey="#link1">
+            {(groupsList.length === 0)
+              ? <ListGroup.Item>No Groups</ListGroup.Item>
+              : groupsList.map((group, idx) => (
+                <ListGroup.Item className="d-flex justify-content-between align-items-center" key={idx} groupid={group.guid}>
+                  <div className="fw-bold">{group.name}</div>
+                  <div>
+                    {(group !== currentGroup)
+                      ? <Badge bg="primary" pill>Current Group</Badge>
+                      : <Button onClick={handleSelectGroup}>Group Details</Button>
+                    }  
+                    {(group.is_active) 
+                      ? <Badge bg="success" pill>Active</Badge>
+                      : <Badge bg="secondary" pill>Inactive</Badge>
+                    }
+                  </div>
+                </ListGroup.Item>
+              ))   
+            }
+            
+          </ListGroup>
+        </Card.Body>
       </Card>
 
 
