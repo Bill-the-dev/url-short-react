@@ -144,10 +144,11 @@ const App = () => {
       })
       console.log(response.data)
       setShortUrl(response.data)
-      setLinkFormValue({
-        longUrl: '',
-        title: ''
-      })
+      // form reset needed
+      // setLinkFormValue({
+      //   longUrl: '',
+      //   title: ''
+      // })
     } catch(error) {
       alert(error)
     }
@@ -239,6 +240,14 @@ const App = () => {
         
         <button type="submit">Get Short Link</button>
       </form>
+
+      {(shortUrl.id)
+        ? <div>
+            <p>Click to copy shortened link</p><br />
+            <button>{shortUrl.id}</button>
+          </div> 
+        : null  
+      }
 
 
       {/* Group List */}
