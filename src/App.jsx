@@ -203,11 +203,13 @@ const App = () => {
           e.preventDefault();
           // debugger
           updateGroupName(currentGroup.guid, groupFormValue)
+          e.target.reset()
         }
       case 'shortenLink':
         return (e) => {
           e.preventDefault();
           getShortLink(linkFormValue.longUrl, linkFormValue.title)
+          // e.target.reset(); // only on success!
         }
       default:
     }
