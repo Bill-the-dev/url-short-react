@@ -9,6 +9,8 @@ const App = () => {
   
   const [currentGroup, setCurrentGroup] = useState({})
   const [currentLinks, setCurrentLinks] = useState([])
+  const [currentLinkId, setCurrentLinkId] = useState('')
+  const [linkMetrics, setLinkMetrics] = useState({})
   const [groupsList, setGroupsList] = useState([])
   const [longUrl, setLongUrl] = useState('')
   
@@ -28,6 +30,13 @@ const App = () => {
       getGroupLinks(currentGroup.guid)
     }
   }, [currentGroup])
+
+  useEffect(() => {
+    if (currentLinkId.length > 1) {
+      getLinkMetrics(currentLinkId)
+    }
+  }, [currentLinkId])
+  
 
   const getGroupsList = async() => {
     try {
@@ -91,15 +100,6 @@ const App = () => {
     }
   }
 
-  // fetch('https://api-ssl.bitly.com/v4/user', {
-  //   method: 'PATCH',
-  //   headers: {
-  //     'Authorization': 'Bearer {TOKEN}',
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify({ "name": "Chauncey McPufferson", "default_group_guid": "Ba1bc23dE4F" })
-  // });
-
   const getShortLink = async() => {
     try {
       let response = await axios.post(urlLink, {
@@ -123,6 +123,30 @@ const App = () => {
       alert(error)
     }
   };
+
+  // --- LINK METRICS ---
+  const handleSelectLink = (e) => {
+    let parentLi = e.target.parentElement
+    let linkId = parentLi.getAttribute('link')
+    console.log(linkId)
+    setCurrentLinkId(linkId)
+  }
+
+  const getLinkMetrics = async(linkId) => {
+    try {
+      let response = await axios.get(`${urlLink}/${linkId}/clicks/summary`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log(response.data);
+      setLinkMetrics(response.data);
+    } catch (error) {
+      alert(error);
+    }
+  }
+
 
   // --- FORM METHODS ---
 
@@ -183,7 +207,7 @@ const App = () => {
             {(currentLinks.length === 0)
               ? <li>No Links</li>
               : currentLinks.map((link, idx) => (
-                <li key={idx}>
+                <li key={idx} link={link.id}>
                   <span>Title: {link.title}</span>
                   <br />
                   <span>Short Link: {<a href={link.link} target="_blank">{link.id}</a>}</span>
@@ -191,6 +215,9 @@ const App = () => {
                   <span>Original Link: {<a href={link.long_url} target="_blank">{link.long_url}</a> }</span>
                   <br />
                   <span>Created At: {new Date(link.created_at).toLocaleString()}</span>
+                  <br />
+                  <button onClick={handleSelectLink}>Get Link Metrics</button>
+                  <br /><br />
                 </li>
               ))
             }
@@ -199,7 +226,20 @@ const App = () => {
       </ul>
 
       {/* Current Link Metrics */}
-      <h4>Current Link Metrics</h4>
+      {(currentLinkId.length === 0 && linkMetrics)
+        ? null
+        : <div>
+            <h4>Link Metrics:</h4>
+            <span>Link: {currentLinkId}</span>
+            <br />
+            <span>Total Clicks: {linkMetrics.total_clicks} per {linkMetrics.units} {linkMetrics.unit}s</span>
+            <span></span>
+
+          </div>
+
+      }
+
+
 
       {/* Update Current Group */}
       <h4>Update Group Details:</h4>  
@@ -209,9 +249,7 @@ const App = () => {
         </label>
         <br />
         <button type="submit">Submit</button>
-
       </form>
-
     </main>
   );
 };
