@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/url-short-react/static/css/main.8ec507e4.css",
+    "main.js": "/url-short-react/static/js/main.fb4e90e0.js",
+    "index.html": "/url-short-react/index.html",
+    "main.8ec507e4.css.map": "/url-short-react/static/css/main.8ec507e4.css.map",
+    "main.fb4e90e0.js.map": "/url-short-react/static/js/main.fb4e90e0.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8ec507e4.css",
+    "static/js/main.fb4e90e0.js"
+  ]
+}
