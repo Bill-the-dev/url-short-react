@@ -131,6 +131,9 @@ const App = () => {
       setCurrentGroup(response.data);
     } catch (error) {
       alert(error);
+    } finally {
+      getGroup(currentGroup.guid)
+      getGroupsList()
     }
   }
 
