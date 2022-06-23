@@ -267,8 +267,8 @@ const App = () => {
             <Card.Header as="h4">Shortened URL: </Card.Header>
             <Card.Body className='text-center'>
               <Card.Title as="h3">{shortUrl.id}</Card.Title>
-              <Button onClick={copy}>Copy to Clipboard</Button>
-              <Button href={shortUrl.link} target="_blank" rel="noreferrer">Open in New Tab</Button>
+            <Button className="m-1" onClick={copy}>Copy to Clipboard</Button>
+            <Button className="m-1" href={shortUrl.link} target="_blank" rel="noreferrer">Open in New Tab</Button>
             </Card.Body>
           </Card>
         : null
