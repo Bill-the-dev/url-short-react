@@ -9,6 +9,7 @@ import Form from 'react-bootstrap/Form'
 import Container from 'react-bootstrap/Container'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Badge from 'react-bootstrap/Badge'
+import Col from 'react-bootstrap/Col'
 // import Alert from 'react-bootstrap/Alert';
 
 const App = () => {
@@ -241,6 +242,7 @@ const App = () => {
   return (
     
     <Container className=""> 
+
       {/* Shorten Link */}
       <Card className="mx-auto" style={{ width: '70vw' }}>
         <Card.Header as="h4">Shorten a link</Card.Header>
@@ -274,7 +276,6 @@ const App = () => {
       <br />
 
       {/* Group List */}
-
       <Card className="mx-auto" style={{ width: '70vw' }}>
         <Card.Header as="h4">{`Groups (${groupsList.length}):`}</Card.Header>
         <Card.Body>
@@ -301,114 +302,99 @@ const App = () => {
           </ListGroup>
         </Card.Body>
       </Card>
-
-
-
-      <h4>{`Groups (${groupsList.length}):`}</h4>
-      <ol> 
-        {(groupsList.length === 0)
-          ? <li>No Groups</li>
-          : groupsList.map((group, idx) => (
-            <li key={idx} groupid={group.guid}>
-              <span><b>Name:</b> {group.name}</span><br />
-              <span><b>Active:</b> {(group.is_active) ? 'true' : 'false'}</span><br />
-              {(group !== currentGroup)
-                ? <Button disabled="disabled">Current Group</Button>
-                : <Button onClick={handleSelectGroup}>Group Details</Button>
-              }  
-            </li>
-          ))
-        }
-      </ol>
       <br />
 
-      {/* <br /><br /><br />
-      <h4>Create a Short Link</h4>
-      <form onSubmit={handleSubmit('shortenLink')}>
-        <label>URL to shorten:
-          <input type="text" defaultValue={linkFormValue.longUrl} placeholder='Enter URL' id="group-name-input" onChange={handleUrlChange('longUrl')} autoComplete='off' />
-        </label>
-        <br />
-        <label>Title:
-          <input type="text" defaultValue={linkFormValue.title} placeholder='Enter URL Title' id="group-name-input" onChange={handleUrlChange('title')} autoComplete='off' />
-        </label>
-        <br />
-        
-        <button type="submit">Get Short Link</button>
-        
-      </form>
-
-      {(shortUrl.id)
-        ? <div>
-            <p>Shortened URL: </p><br />
-            <h4>{shortUrl.id}</h4><br />
-            <Button onClick={copy}>Copy to Clipboard</Button>
-            
-            <a href={shortUrl.link} target="_blank" rel="noreferrer"><Button >Open in New Tab</Button></a>
-          </div> 
-        : null  
-      } */}
-
-
-      
-      {/* Current Group Detail */}
-      <h4>Current Group: </h4>
-      <ul className='ul c-group-ul'>
-        <li><b>Name:</b> {currentGroup.name}</li>
-        <li><b>ID:</b> {currentGroup.guid}</li>
-        <li> <b>Metrics by Country (per 30 days):</b>
-          <ul className='ul c-group-metrics-ul'>
-            {(!groupMetrics.length)
-              ? <li>No Metrics</li>
-              : groupMetrics.map((country, idx) => (
-                <li key={idx}>
-                  <span><b>{country.value}:</b> {country.clicks} clicks</span><br />
-                </li>
-              ))
-            }
-          </ul>
-        </li>
-        <li><b>Links:</b> 
-          <ul className='ul c-group-links-ul'>
-            {(currentLinks.length === 0)
-              ? <li>No Links</li>
-              : currentLinks.map((link, idx) => (
-                <li key={idx} link={link.id}>
-                  <span><b>Title:</b> {link.title}</span><br />
-                  <span>Short Link: {<a href={link.link} target="_blank" rel="noreferrer">{link.id}</a>}</span><br />
-                  <span>Original Link: {<a href={link.long_url} target="_blank" rel="noreferrer">{link.long_url}</a> }</span><br />
-                  <span>Created At: {new Date(link.created_at).toLocaleString()}</span><br />
-                  <Button onClick={handleSelectLink}>Get Link Metrics</Button>
-                  <br />
-                </li>
-              ))
-            }
-          </ul>
-        </li>
-      </ul>
+      {/* Current Group Details */}
+      <Card className="mx-auto" style={{ width: '70vw' }}>
+        <Card.Header as="h4">Current Group Detail</Card.Header>
+        <Card.Body>
+          <dl className="row">
+            <dt className="col-sm-3">Name</dt>
+            <dd className="col-sm-9">{currentGroup.name}</dd>
+            <dt className="col-sm-3 text-truncate">Group ID</dt>
+            <dd className="col-sm-9">{currentGroup.guid}</dd>
+            <dt className="col-sm-12">Clicks by Country (30 days)</dt>
+            <dd className="col-sm-12">
+              <ListGroup className='.list-group-flush'>
+              {(!groupMetrics.length)
+                ? <ListGroup.Item>No Metrics</ListGroup.Item>
+                : groupMetrics.map((country, idx) => (
+                  <ListGroup.Item key={idx} className='d-flex align-items-start'>
+                    <Col className="fw-bold col-sm-3" >{country.value}
+                    </Col>
+                    <Col className="fw-bold col-sm-9" >
+                      <Badge bg="secondary" pill>{country.clicks}</Badge>
+                    </Col>
+                  </ListGroup.Item>
+                ))
+              }
+              </ListGroup>
+            </dd>
+            <dt className="col-sm-12">Group Links</dt>
+            <dd className="col-sm-12">
+              <ListGroup className='.list-group-flush'>
+                {(currentLinks.length === 0)
+                  ? <ListGroup.Item>No Links</ListGroup.Item>
+                  : currentLinks.map((link, idx) => (
+                    <ListGroup.Item key={idx} link={link.id} className='d-flex flex-column'>
+                      <Col className="d-flex flex-row">
+                        <Col className="fw-bold col-sm-3" >Title</Col>
+                        <Col className="col-sm-9" >{link.title}</Col>
+                      </Col>
+                      <Col className="d-flex">
+                        <Col className="fw-bold col-sm-3" >Short URL</Col>
+                        <Col className="col-sm-9" ><Button className="p-0" variant="link" href={link.link} target="_blank" rel="noreferrer">{link.id}</Button></Col>
+                      </Col>
+                      <Col className="d-flex">
+                        <Col className="fw-bold col-sm-3" >Original URL</Col>
+                        <Col className="col-sm-9" ><Button className="p-0" variant="link" href={link.long_url} target="_blank" rel="noreferrer">{link.long_url}</Button></Col>
+                      </Col>
+                      <Col className="d-flex">
+                        <Col className="fw-bold col-sm-3" >Created At</Col>
+                        <Col className="col-sm-9" >{new Date(link.created_at).toLocaleString()}</Col>
+                      </Col>
+                      <Button className='col-sm-3 mt-3 mb-3' onClick={handleSelectLink}>Get Link Metrics</Button>
+                    </ListGroup.Item>
+                  ))
+                }
+              </ListGroup>
+            </dd>
+          </dl>
+        </Card.Body>
+      </Card>
+      <br />
 
       {/* Current Link Metrics */}
       {(currentLinkId.length === 0 && linkMetrics)
         ? null
-        : <div>
-            <h4>Link Metrics:</h4>
-            <span>Link: {currentLinkId}</span>
-            <br />
-            <span>Total Clicks: {linkMetrics.total_clicks} per {linkMetrics.units} {linkMetrics.unit}s</span>
-            <br />
-            <span><em>Upgrade account to access metrics by city, device type, </em></span>
-          </div>
+        : <Card className="mx-auto" style={{ width: '70vw' }}>
+            <Card.Header as="h4">Link Metrics</Card.Header>
+            <Card.Body>
+            <dl className="row">
+              <dt className="col-sm-3">Link</dt>
+              <dd className="col-sm-9">{currentLinkId}</dd>
+              <dt className="col-sm-3">Total Clicks</dt>
+              <dd className="col-sm-9">{`${ linkMetrics.total_clicks } per ${linkMetrics.units} ${linkMetrics.unit}s`}</dd>
+              <p><em>Upgrade account to access metrics by city, device type, and more.</em></p>
+            </dl>
+            </Card.Body>
+          </Card>
       }
-
+      <br />
+      
       {/* Update Current Group */}
-      <h4>Update Group Details:</h4>  
-      <form onSubmit={handleSubmit('updateGroup')}>
-        <label>Group Name: 
-          <input type="text" defaultValue='' placeholder='Enter new name' id="group-name-input" onChange={handleGroupChange("name")} autoComplete='off'/>
-        </label>
-        <br />
-        <Button type="submit">Submit</Button>
-      </form>
+      <Card className="mx-auto" style={{ width: '70vw' }}>
+        <Card.Header as="h4">Update Group Details</Card.Header>
+        <Card.Body>
+          <Form onSubmit={handleSubmit('updateGroup')}>
+            <Form.Group className='mb-3'>
+              <Form.Label>Group Name: </Form.Label>
+              <Form.Control type="text" defaultValue='' placeholder={currentGroup.name} id="group-name-input" onChange={handleGroupChange('name')} autoComplete='off'></Form.Control>
+            </Form.Group>
+            <Button type="submit">Submit Changes</Button>
+          </Form>
+        </Card.Body>
+      </Card>
     </Container>
   );
 };
